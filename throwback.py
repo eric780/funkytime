@@ -1,7 +1,13 @@
 import billboard
+import spotipy
 import argparse
 import random
 import re
+from flask import Flask
+from flask import render_template
+
+app = Flask(__name__)
+spotify = spotipy.Spotify()
 
 parser = argparse.ArgumentParser(description = 'Throwbacks')
 parser.add_argument('year')
@@ -32,15 +38,17 @@ def getRandomSongByYear(year):
 
     return song
 
+@app.route("/")
+@app.route("/index")
+def hello():
+    song = getRandomSongByYear(2012) #TODO CHANGE YEAR
+    track = spotify.track(song.spotifyID)
+    return render_template('index.html', song = song, track = track)
+
+
 if __name__ == '__main__':
     args = parser.parse_args()
 
     # TODO make it so it doesn't repeat songs very often
-    
-    
-    year = args.year # TODO regex check year
-    for i in xrange(0,100):
-        song = getRandomSongByYear(year)
-        if len(song.spotifyID) == 0:
-            print song
-        print i
+
+    app.run(debug=True)
