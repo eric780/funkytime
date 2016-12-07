@@ -1,0 +1,40 @@
+<html>
+  <head>
+    <title>Throwback</title>
+  </head>
+  <body>
+    <h1>FUNKY TIME</h1>
+    <img src='http://cultofthepartyparrot.com/parrots/fiestaparrot.gif'/>
+
+    <br />
+
+    <!-- Change this to not post -->
+    <form id="yearform" method="get">
+      <p>Year: </p>
+      <input type="text" id="year" value="{{year}}"/>
+      <input type="submit" value="Submit"/>
+    </form>
+
+    <p>Year: {{year}}</p>
+    <p>{{track['preview_url']}}</p>
+    <p>{{song.title}} by {{song.artist}}</p>
+
+    <audio controls>
+      <source src={{track['preview_url']}} type="audio/mp3" />
+    </audio>
+  </body>
+
+  <script
+    src="https://code.jquery.com/jquery-3.1.1.slim.min.js"
+    integrity="sha256-/SIrNqv8h6QGKDuNoLGA4iret+kyesCkHGzVUUV0shc="
+    crossorigin="anonymous"></script>
+
+  <script>
+    $(document).ready(function() {
+      $('#yearform').submit(function(e){
+        var url = $('#year').val();
+        $(this).attr('action', url);
+      });
+    });
+  </script>
+</html>

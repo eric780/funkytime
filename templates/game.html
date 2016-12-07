@@ -1,0 +1,58 @@
+<html>
+  <head>
+    <title>Throwback</title>
+  </head>
+  <body>
+
+  <div id="song" />
+
+  <div id="yearInput">
+    <form>
+      <p>What year is this song from?: </p>
+      <input type="text" id="inputyear"/>
+      <input type="submit" value="Submit"/>
+    </form>
+  </div>
+
+  <p id="result" />
+
+  <script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+      crossorigin="anonymous"></script>
+
+  <script>
+    var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    $(document).ready(function() {
+      var score = 0;
+
+      // Get song and answer
+      $.getJSON($SCRIPT_ROOT + '/_getSong', function(data) {
+        var audio = '<audio controls> <source src=' + data.uri
+          + ' type="audio/mp3" /> </audio>';
+        $('#song').append(audio);
+
+
+        $('#yearInput').submit(function(e) {
+          e.preventDefault();
+
+          var input = $('#inputyear').val(); // TODO sanitize input
+          console.log(Math.abs(input - data.year));
+          console.log(data.year);
+
+          var resultText = (input == data.year) ? 'You are correct!' :
+            'The correct answer is ' + data.year + '.';
+
+          $('#result').text(resultText);
+          $('#result').append(
+              '<a href="#reload" onclick="location.reload()">Try Again</a>'
+           );
+        });
+      });
+
+
+    });
+  </script>
+
+  </body>
+</html>

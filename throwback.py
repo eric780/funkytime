@@ -1,18 +1,18 @@
 import billboard
 import spotipy
-import argparse
 import random
 import re
 from flask import Flask
-from flask import render_template
-
-app = Flask(__name__)
-spotify = spotipy.Spotify()
-
-parser = argparse.ArgumentParser(description = 'Throwbacks')
-parser.add_argument('year')
+from flask import render_template, url_for, request, jsonify
 
 CHARTNAME = 'hot-100'
+DEFAULT_YEAR = 2012
+
+app = Flask(__name__)
+app.config['DEBUG'] = True
+app.config['DEFAULT_YEAR'] = str(DEFAULT_YEAR)
+spotify = spotipy.Spotify()
+
 
 def getRandomSongByYear(year):
     month = random.randint(1,12)
@@ -31,24 +31,45 @@ def getRandomSongByYear(year):
             break
         
     while True:
-        song = chart[random.randint(0,10)]
+        song = chart[random.randint(0,15)]
+        if song.artist == 'Taylor Swift':
+            continue
         if len(song.spotifyID) > 0:
-            break
+            track = spotify.track(song.spotifyID)
+            if track['preview_url'] != None:
+                break
+
     # ----------------------------------------------------------------------
 
     return song
 
+@app.route("/play", defaults={'year': 2000})
+@app.route("/play/<year>")
+def getSongByYear(year):
+    print year
+    #TODO validate year
+    song = getRandomSongByYear(year)
+    track = spotify.track(song.spotifyID)
+    return render_template('play.html', song = song, track = track, year = year)
+
+@app.route("/_getSong")
+def getRandomSong():
+    #TODO return spotify URL for a random song between years
+    MIN_YEAR = 2000 #TODO allow user to change
+    MAX_YEAR = 2015
+    year = random.randint(MIN_YEAR, MAX_YEAR)
+    song = getRandomSongByYear(year)
+    track = spotify.track(song.spotifyID)
+    return jsonify(uri = track['preview_url'], year=year, name=track['name'], artist=track['artists'])
+
+@app.route("/game")
+def game():
+    return render_template('game.html')
+
 @app.route("/")
 @app.route("/index")
-def hello():
-    song = getRandomSongByYear(2012) #TODO CHANGE YEAR
-    track = spotify.track(song.spotifyID)
-    return render_template('index.html', song = song, track = track)
-
+def main():
+    return render_template('index.html')
 
 if __name__ == '__main__':
-    args = parser.parse_args()
-
-    # TODO make it so it doesn't repeat songs very often
-
-    app.run(debug=True)
+    app.run()

@@ -1,4 +1,4 @@
-# throwback
+# It's Funky Time
 
 Requires billboard.py
 
