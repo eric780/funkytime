@@ -2,6 +2,7 @@ import billboard
 import spotipy
 import random
 import re
+import os
 from flask import Flask
 from flask import render_template, url_for, request, jsonify
 
@@ -14,6 +15,9 @@ app.config['DEFAULT_YEAR'] = str(DEFAULT_YEAR)
 spotify = spotipy.Spotify()
 
 
+"""
+    Takes a year and returns a song object from billboard
+"""
 def getRandomSongByYear(year):
     month = random.randint(1,12)
     day = random.randint(1,28)
@@ -26,7 +30,7 @@ def getRandomSongByYear(year):
         day = random.randint(1,28)
         date = str(year) + '-' + str(month) + '-' + str(day)
         chart = billboard.ChartData(CHARTNAME, date=date) # TODO fetch=False to get data l8r
-
+        
         if len(chart.entries) > 0:
             break
         
@@ -60,7 +64,14 @@ def getRandomSong():
     year = random.randint(MIN_YEAR, MAX_YEAR)
     song = getRandomSongByYear(year)
     track = spotify.track(song.spotifyID)
+    print getAnswerChoicesForArtist(track['artists'][0])
     return jsonify(uri = track['preview_url'], year=year, name=track['name'], artist=track['artists'])
+
+def getAnswerChoicesForArtist(artist):
+    related_artists = spotify.artist_related_artists(artist['id'])['artists']
+    related_artists = related_artists[0:3]
+
+    return [a['name'] for a in related_artists]
 
 @app.route("/game")
 def game():

@@ -1,0 +1,14 @@
+#mainbody {
+    position: absolute;
+    width: 100%;
+}
+
+#header {
+    height: 20vh;
+    text-align: center;
+}
+
+#maincontent {
+    height: 80vh;
+    text-align: center;
+}

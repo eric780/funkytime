@@ -1,58 +1,60 @@
 <html>
   <head>
     <title>Throwback</title>
+
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='game.css')}}"
   </head>
   <body>
 
-  <div id="song" />
+  <div id="mainbody">
+    <div id="header">
+      <h1>FUNKY TIME</h1>
+      <img src='http://cultofthepartyparrot.com/parrots/fiestaparrot.gif'/>
+    </div>
 
-  <div id="yearInput">
-    <form>
-      <p>What year is this song from?: </p>
-      <input type="text" id="inputyear"/>
-      <input type="submit" value="Submit"/>
-    </form>
-  </div>
+    <div id="maincontent">
+      <div id="menu">
+        Select Game Type:
+    
+        <button>Artist</button>
+        <button>Song</button>
+        <button>Year</button> 
 
-  <p id="result" />
+      </div>
 
-  <script
-  src="https://code.jquery.com/jquery-3.1.1.min.js"
-    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-      crossorigin="anonymous"></script>
+      <div id="gamescreen">
+        <div id="warningsection">
+          <p>WARNING: Music ahead! Turn your volume down.</p>
+          <p id="secondsremaining"></p>
+        </div>
+
+        <div id="scoresection">
+          <p>Score: </p>
+          <p id="score">0</p>
+        </div>
+
+        <div id="userinput">
+        </div>
+
+        <div id="song">
+          <audio id="songElement" />
+        </div>
+
+
+        <p id="result"></p>
+
+      </div>
+    </div> <!-- gamescreen -->
+  </div> <!-- mainbody -->
+
+
+  <script type="text/javascript" src="{{url_for('static', filename='jquery-3.1.1.min.js')}}"></script>
 
   <script>
     var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-    $(document).ready(function() {
-      var score = 0;
-
-      // Get song and answer
-      $.getJSON($SCRIPT_ROOT + '/_getSong', function(data) {
-        var audio = '<audio controls> <source src=' + data.uri
-          + ' type="audio/mp3" /> </audio>';
-        $('#song').append(audio);
-
-
-        $('#yearInput').submit(function(e) {
-          e.preventDefault();
-
-          var input = $('#inputyear').val(); // TODO sanitize input
-          console.log(Math.abs(input - data.year));
-          console.log(data.year);
-
-          var resultText = (input == data.year) ? 'You are correct!' :
-            'The correct answer is ' + data.year + '.';
-
-          $('#result').text(resultText);
-          $('#result').append(
-              '<a href="#reload" onclick="location.reload()">Try Again</a>'
-           );
-        });
-      });
-
-
-    });
   </script>
+
+  <script type="text/javascript" src="{{url_for('static', filename='game.js')}}"></script>
 
   </body>
 </html>
