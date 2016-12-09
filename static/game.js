@@ -7,15 +7,14 @@ var GameType = {
 $(document).ready(function() {
   var score = 0;
   var gametype = GameType.YEAR;
-  var correctAnswer = null; // Saves data about the correct answer
+  var correctAnswer = null; // Stores correct answer
 
   // Hide game screen until user clicks a button
   $('#game-screen').hide();
 
   // Set change game type handlers
   $('#menu-year-button').click(function() {
-    updateScore(0);
-    gameType = GameType.YEAR;
+    gametype = GameType.YEAR;
 
     $('#game-screen').show();
     $('#warning-section').hide();
@@ -25,7 +24,13 @@ $(document).ready(function() {
   });
 
   $('#menu-artist-button').click(function() {
-    // TODO
+    gametype = GameType.ARTIST;
+
+    $('#game-screen').show();
+    $('#warning-section').hide();
+    loadNextSong();
+
+    $('#menu').hide();
   });
 
   $('#menu-song-button').click(function() {
@@ -35,22 +40,24 @@ $(document).ready(function() {
 
   // Main loop function.
   function loadNextSong(callback) {
-    console.log(gametype);
     updateScore(score);
     document.getElementById("song-element").pause(); // Pause current music
 
     clearPreviousRound();
 
-    $.getJSON($SCRIPT_ROOT + '/_getSong', function(data) { // $SCRIPT_ROOT is set in game.html
-      correctAnswer = data;
-      setAudioSource(data.uri);
+    $.post($SCRIPT_ROOT + '/_getSong',  // $SCRIPT_ROOT is set in game.html
+      {'gametype': gametype}, 
+      function(data) {
+        correctAnswer = data.answers[0];
 
-      var answerButtons = generateAnswerChoices(data.year);
+        setAudioSource(data.uri);
 
-      for (var i = 0; i < answerButtons.length; i++) {
-        $('#answer-section').append(answerButtons[i]);
-      }
-    });
+        var answerButtons = generateAnswerButtons(data.answers);
+
+        for (var i = 0; i < answerButtons.length; i++) {
+          $('#answer-section').append(answerButtons[i]);
+        }
+      });
   }
 
   function clearPreviousRound() {
@@ -71,31 +78,24 @@ $(document).ready(function() {
     audioObject.play();
   }
 
-  // Generates a list of four buttons, one of which is the right answer
-  function generateAnswerChoices(year) {
-    // Generate years
-    var arr = [year]
-    while(arr.length < 4) {
-      var randomnumber = Math.floor(Math.random() * 16) + 2000;
-      if (arr.indexOf(randomnumber) > -1) continue;
-      arr[arr.length] = randomnumber;
-    }
-
-    for (var i = 0; i < arr.length; i++) {
+  // Takes a list of answers, generates buttons w/ handlers, and shuffles them.
+  function generateAnswerButtons(answers) {
+    var arr = []
+    for (var i = 0; i < answers.length; i++) {
       var button = $('<button />', {
-        text: arr[i],
+        text: answers[i],
       });
 
-      if (i == 0) {// answer
+      if (i == 0) { // right answer
         button.click(correctAnswerClick);
       } else {
         button.click(wrongAnswerClick);
       }
 
       arr[i] = button;
-    }    
+    }
 
-    // shuffle first element (answer)
+    // swap first element
     var randomindex = Math.floor(Math.random() * 4);
     var temp = arr[randomindex]
     arr[randomindex] = arr[0];
@@ -103,7 +103,6 @@ $(document).ready(function() {
 
     return arr;
   }
-
 
   function correctAnswerClick() {
     updateScore(score + 1);
@@ -113,7 +112,7 @@ $(document).ready(function() {
 
   function wrongAnswerClick() {
     updateScore(0);
-    $('#result').text("Sorry, the right answer was " + correctAnswer.year);
+    $('#result').text("Sorry, the right answer was " + correctAnswer);
     loadNextSong();
   }
 

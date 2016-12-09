@@ -8,12 +8,21 @@ from flask import render_template, url_for, request, jsonify
 
 CHARTNAME = 'hot-100'
 DEFAULT_YEAR = 2012
+MIN_YEAR = 2000
+MAX_YEAR = 2015
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['DEFAULT_YEAR'] = str(DEFAULT_YEAR)
 spotify = spotipy.Spotify()
 
+GAME_TYPE_YEAR = 'year'
+GAME_TYPE_ARTIST = 'artist'
+GAME_TYPE_SONG = 'song'
+
+
+class InvalidGameTypeException(Exception):
+    pass
 
 """
     Takes a year and returns a song object from billboard
@@ -50,26 +59,44 @@ def getRandomSongByYear(year):
 @app.route("/play", defaults={'year': 2000})
 @app.route("/play/<year>")
 def getSongByYear(year):
-    print year
     #TODO validate year
     song = getRandomSongByYear(year)
     track = spotify.track(song.spotifyID)
     return render_template('play.html', song = song, track = track, year = year)
 
-@app.route("/_getSong")
-def getRandomSong():
-    #TODO return spotify URL for a random song between years
-    MIN_YEAR = 2000 #TODO allow user to change
-    MAX_YEAR = 2015
+@app.route("/_getSong", methods=['POST'])
+def getSongAndAnswers():
+    # Returns json of the URI and a list of answers, first one being correct. JS will shuffle the list.
+
+    gametype = request.form['gametype']
     year = random.randint(MIN_YEAR, MAX_YEAR)
     song = getRandomSongByYear(year)
     track = spotify.track(song.spotifyID)
-    print getAnswerChoicesForArtist(track['artists'][0])
-    return jsonify(uri = track['preview_url'], year=year, name=track['name'], artist=track['artists'])
+    artist = track['artists'][0]
+
+    if gametype == GAME_TYPE_YEAR:
+        answers = getAnswerChoicesForYear(year)
+    elif gametype == GAME_TYPE_ARTIST:
+        answers = getAnswerChoicesForArtist(artist)
+    elif gametype == GAME_TYPE_SONG:
+        answers = []
+    else:
+        raise InvalidGameTypeException()
+
+    return jsonify(uri = track['preview_url'], answers = answers)
+
+def getAnswerChoicesForYear(year):
+    arr = [year]
+    while len(arr) < 4:
+        rand = random.randint(MIN_YEAR, MAX_YEAR)
+        if rand in arr:
+            continue
+        arr.append(rand)
+    return arr
 
 def getAnswerChoicesForArtist(artist):
     related_artists = spotify.artist_related_artists(artist['id'])['artists']
-    related_artists = related_artists[0:3]
+    related_artists = [artist] + related_artists[0:3]
 
     return [a['name'] for a in related_artists]
 
