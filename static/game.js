@@ -7,29 +7,37 @@ var GameType = {
 $(document).ready(function() {
   var score = 0;
   var gametype = GameType.YEAR;
-  var correctAnswer = null;
+  var correctAnswer = null; // Saves data about the correct answer
+
+  // Hide game screen until user clicks a button
+  $('#game-screen').hide();
 
   // Set change game type handlers
-  $('#menuYearButton').click(function() {
+  $('#menu-year-button').click(function() {
     updateScore(0);
     gameType = GameType.YEAR;
 
-    $('#gamescreen').show();
-    $('#warningsection').hide();
+    $('#game-screen').show();
+    $('#warning-section').hide();
     loadNextSong();
-  });
-  $('#menuArtistButton').click(function() {
-    
+
+    $('#menu').hide();
   });
 
-  $('#gamescreen').hide();
+  $('#menu-artist-button').click(function() {
+    // TODO
+  });
+
+  $('#menu-song-button').click(function() {
+    // TODO
+  });
 
 
   // Main loop function.
   function loadNextSong(callback) {
     console.log(gametype);
     updateScore(score);
-    document.getElementById("songElement").pause(); // Pause current music
+    document.getElementById("song-element").pause(); // Pause current music
 
     clearPreviousRound();
 
@@ -40,17 +48,17 @@ $(document).ready(function() {
       var answerButtons = generateAnswerChoices(data.year);
 
       for (var i = 0; i < answerButtons.length; i++) {
-        $('#userinput').append(answerButtons[i]);
+        $('#answer-section').append(answerButtons[i]);
       }
     });
   }
 
   function clearPreviousRound() {
-    $('#userinput').empty();
+    $('#answer-section').empty();
   }
 
   function setAudioSource(uri) {
-    var audioObject = document.getElementById("songElement");
+    var audioObject = document.getElementById("song-element");
     audioObject.src = uri;
 
     if(!audioObject.hasAttribute("controls")) {
