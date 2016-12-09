@@ -1,31 +1,34 @@
+var GameType = {
+  SONG: "song",
+  YEAR: "year",
+  ARTIST: "artist",
+};
+
 $(document).ready(function() {
   var score = 0;
+  var gametype = GameType.YEAR;
   var correctAnswer = null;
 
-  // Hide menu for now
-  $('#menu').hide();
+  // Set change game type handlers
+  $('#menuYearButton').click(function() {
+    updateScore(0);
+    gameType = GameType.YEAR;
 
+    $('#gamescreen').show();
+    $('#warningsection').hide();
+    loadNextSong();
+  });
+  $('#menuArtistButton').click(function() {
+    
+  });
 
-  // Countdown for music warning
-  var numSecondsWarning = 4;
-  var timer = setInterval(function() {
-    numSecondsWarning -= 1;
-    $('#secondsremaining').text(numSecondsWarning);
-    if (numSecondsWarning == 0) {
-      clearTimeout(timer);
+  $('#gamescreen').hide();
 
-      // Remove warning
-      $('#warningsection').empty();
-
-      // Start the loop!
-      loadNextSong();
-    }
-  }, 1000);
-  
 
   // Main loop function.
-  function loadNextSong() {
-    $('#score').text(score);  // Update score
+  function loadNextSong(callback) {
+    console.log(gametype);
+    updateScore(score);
     document.getElementById("songElement").pause(); // Pause current music
 
     clearPreviousRound();
@@ -95,15 +98,20 @@ $(document).ready(function() {
 
 
   function correctAnswerClick() {
-    score += 1;
+    updateScore(score + 1);
     $('#result').text("You got it!");
     loadNextSong();
   }
 
   function wrongAnswerClick() {
-    score = 0;
+    updateScore(0);
     $('#result').text("Sorry, the right answer was " + correctAnswer.year);
     loadNextSong();
+  }
+
+  function updateScore(s) {
+    score = s;
+    $('#score').text(score);
   }
 
 });
