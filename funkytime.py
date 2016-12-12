@@ -8,8 +8,8 @@ from flask import render_template, url_for, request, jsonify
 
 CHARTNAME = 'hot-100'
 DEFAULT_YEAR = 2012
-MIN_YEAR = 2000
-MAX_YEAR = 2015
+MIN_YEAR = 2000 #TODO allow user to specify range
+MAX_YEAR = 2016
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -38,7 +38,7 @@ def getRandomSongByYear(year):
         month = random.randint(1,12)
         day = random.randint(1,28)
         date = str(year) + '-' + str(month) + '-' + str(day)
-        chart = billboard.ChartData(CHARTNAME, date=date) # TODO fetch=False to get data l8r
+        chart = billboard.ChartData(CHARTNAME, date=date)
         
         if len(chart.entries) > 0:
             break
