@@ -37,6 +37,21 @@ $(document).ready(function() {
     // TODO
   });
 
+  // Set spacebar to pause/play song
+  window.addEventListener("keydown", function(event) {
+    switch (event.keyCode) {
+      case 32: // Spacebar
+        var audioObject = document.getElementById('song-element');
+        if (audioObject.paused) {
+          audioObject.play();
+        } else {
+          audioObject.pause();
+        }
+    }
+
+    return false;
+  }, false);
+
 
   // Main loop function.
   function loadNextSong(callback) {
@@ -83,6 +98,7 @@ $(document).ready(function() {
     var arr = []
     for (var i = 0; i < answers.length; i++) {
       var button = $('<button />', {
+        class: "answerButton",
         text: answers[i],
       });
 
