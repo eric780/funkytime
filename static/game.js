@@ -15,6 +15,7 @@ var partyParrots = [
 
 $(document).ready(function() {
   var score = 0;
+  var best_score = 0;
   var gametype = GameType.YEAR;
   var correctAnswer = null; // Stores correct answer
 
@@ -148,6 +149,11 @@ $(document).ready(function() {
   function updateScore(s) {
     score = s;
     $('#score').text(score);
+
+    if (score > best_score) {
+      best_score = score;
+      $('#best-score').text(best_score);
+    }
   }
 
   function getPartyParrot() {

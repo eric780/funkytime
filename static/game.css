@@ -13,7 +13,7 @@
     text-align: center;
 }
 
-#score-text {
+#score-text, #best-score-text {
     color: gray;
     font-size: 12;
 }
