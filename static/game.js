@@ -4,6 +4,15 @@ var GameType = {
   ARTIST: "artist",
 };
 
+var partyParrots = [
+  "http://cultofthepartyparrot.com/parrots/dealwithitparrot.gif",
+  "http://cultofthepartyparrot.com/parrots/parrotdad.gif",
+  "http://cultofthepartyparrot.com/parrots/rightparrot.gif",
+  "http://cultofthepartyparrot.com/parrots/aussieparrot.gif",
+  "http://cultofthepartyparrot.com/parrots/parrotmustache.gif",
+  "http://cultofthepartyparrot.com/parrots/partyparrot.gif",
+];
+
 $(document).ready(function() {
   var score = 0;
   var gametype = GameType.YEAR;
@@ -122,12 +131,16 @@ $(document).ready(function() {
 
   function correctAnswerClick() {
     updateScore(score + 1);
+    $('#result').empty();
+
     $('#result').text("You got it!");
+    $('#result').append("<img src='" + getPartyParrot() + "'/>");
     loadNextSong();
   }
 
   function wrongAnswerClick() {
     updateScore(0);
+    $('#result').empty();
     $('#result').text("Sorry, the right answer was " + correctAnswer);
     loadNextSong();
   }
@@ -137,4 +150,10 @@ $(document).ready(function() {
     $('#score').text(score);
   }
 
+  function getPartyParrot() {
+    return partyParrots[Math.floor(Math.random() * partyParrots.length)];
+  }
+
 });
+
+

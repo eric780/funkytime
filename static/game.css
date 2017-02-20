@@ -20,7 +20,7 @@
 
 #score {
     font-size:  54;
-    margin-top: 10px;
+    margin-top: 5px;
 }
 
 #answer-section {
@@ -28,10 +28,19 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    min-height: 250px;
 }
 
 #song {
     margin-top: 10px;
+}
+
+#result {
+    margin-top: 10px;
+}
+
+#result img {
+    width: 30px;
 }
 
 .answerButton {
@@ -74,4 +83,13 @@
 .answerButton:active {
     position:relative;
     top:1px;
+}
+
+.footer {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 1rem;
+    text-align: center;
 }
