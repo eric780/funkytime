@@ -5,6 +5,7 @@ import re
 import os
 from flask import Flask
 from flask import render_template, url_for, request, jsonify
+from flask.ext.sqlalchemy import SQLAlchemy
 
 CHARTNAME = 'hot-100'
 DEFAULT_YEAR = 2012
@@ -14,6 +15,8 @@ MAX_YEAR = 2016
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['DEFAULT_YEAR'] = str(DEFAULT_YEAR)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+db = SQLAlchemy(app)
 spotify = spotipy.Spotify()
 
 GAME_TYPE_YEAR = 'year'
