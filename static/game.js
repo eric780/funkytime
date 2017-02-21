@@ -47,6 +47,28 @@ $(document).ready(function() {
     // TODO
   });
 
+  $('#savebutton').click(function() {
+    var username = window.prompt("Enter your username: ");
+    // TODO SANITIZE
+    $.post($SCRIPT_ROOT + '/savescore',
+      {'username' : username, 'score' : best_score},
+      function(data) {
+        console.log(data);
+      });
+  });
+  $('#viewscorebutton').click(function() {
+    $.get($SCRIPT_ROOT + '/getscores',
+      function(data) {
+        var scores = data.scores;
+        var displayString = "";
+        for (var i = 0; i < scores.length; i++) {
+          displayString += scores[i].username + "\t" + scores[i].score + "\n";
+        }
+
+        alert(displayString);
+      });
+  });
+
   // Set spacebar to pause/play song
   window.addEventListener("keydown", function(event) {
     switch (event.keyCode) {

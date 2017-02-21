@@ -16,8 +16,8 @@ MAX_YEAR = 2016
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['DEFAULT_YEAR'] = str(DEFAULT_YEAR)
-#app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
-heroku = Heroku(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/funky-time-scores'
+#heroku = Heroku(app)
 db = SQLAlchemy(app)
 spotify = spotipy.Spotify()
 
@@ -26,6 +26,7 @@ GAME_TYPE_ARTIST = 'artist'
 GAME_TYPE_SONG = 'song'
 
 MAX_LENGTH_USERNAME = 100
+LEADERBOARD_SIZE = 20
 
 
 class InvalidGameTypeException(Exception):
@@ -34,7 +35,7 @@ class InvalidGameTypeException(Exception):
 """
     Database Model
 """
-class Score(db.Model):
+class LeaderboardEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(MAX_LENGTH_USERNAME))
     score = db.Column(db.Integer)
@@ -44,7 +45,32 @@ class Score(db.Model):
         self.score = score
 
     def __repr__(self):
-        return self.username + ', ' + self.score
+        return self.username + ', ' + str(self.score)
+
+    def serialize(self):
+        return {'username' : self.username, 'score' : self.score}
+
+"""
+    Saves a score into the DB
+"""
+@app.route('/savescore', methods=['POST'])
+def savescore():
+    username = request.form['username'] # TODO SANITIZE
+    score = request.form['score']
+    new_score = LeaderboardEntry(username, score)
+
+    db.session.add(new_score)
+    db.session.commit()
+    return jsonify(success=True, error=None)
+
+"""
+    Returns the top k scores in the DB
+"""
+@app.route('/getscores', methods=['GET'])
+def getHighScores():
+    high_scores = LeaderboardEntry.query.order_by(LeaderboardEntry.score.desc()).limit(LEADERBOARD_SIZE).all()
+    high_scores_serializable = [entry.serialize() for entry in high_scores]
+    return jsonify(scores=high_scores_serializable)
 
 """
     Takes a year and returns a song object from billboard
