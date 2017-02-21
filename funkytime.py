@@ -25,9 +25,26 @@ GAME_TYPE_YEAR = 'year'
 GAME_TYPE_ARTIST = 'artist'
 GAME_TYPE_SONG = 'song'
 
+MAX_LENGTH_USERNAME = 100
+
 
 class InvalidGameTypeException(Exception):
     pass
+
+"""
+    Database Model
+"""
+class Score(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(MAX_LENGTH_USERNAME))
+    score = db.Column(db.Integer)
+
+    def __init__(self, username, score):
+        self.username = username
+        self.score = score
+
+    def __repr__(self):
+        return self.username + ', ' + self.score
 
 """
     Takes a year and returns a song object from billboard
