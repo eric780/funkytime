@@ -5,7 +5,8 @@ import re
 import os
 from flask import Flask
 from flask import render_template, url_for, request, jsonify
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
+from flask_heroku import Heroku
 
 CHARTNAME = 'hot-100'
 DEFAULT_YEAR = 2012
@@ -15,7 +16,8 @@ MAX_YEAR = 2016
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['DEFAULT_YEAR'] = str(DEFAULT_YEAR)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+#app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+heroku = Heroku(app)
 db = SQLAlchemy(app)
 spotify = spotipy.Spotify()
 
