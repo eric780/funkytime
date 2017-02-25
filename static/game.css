@@ -85,6 +85,10 @@
     top:1px;
 }
 
+#save {
+    padding: 10px;
+}
+
 .footer {
     position: fixed;
     right: 0;

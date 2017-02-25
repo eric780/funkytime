@@ -16,8 +16,8 @@ MAX_YEAR = 2016
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['DEFAULT_YEAR'] = str(DEFAULT_YEAR)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/funky-time-scores'
-#heroku = Heroku(app)
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/funky-time-scores'
+heroku = Heroku(app)
 db = SQLAlchemy(app)
 spotify = spotipy.Spotify()
 
