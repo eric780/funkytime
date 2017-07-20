@@ -1,5 +1,6 @@
 import billboard
 import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
 import random
 import re
 import os
@@ -19,7 +20,11 @@ app.config['DEFAULT_YEAR'] = str(DEFAULT_YEAR)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/funky-time-scores'
 heroku = Heroku(app)
 db = SQLAlchemy(app)
-spotify = spotipy.Spotify()
+client_credentials_manager = SpotifyClientCredentials(
+    client_id = '63ab4c7c7abe45ba8a1e87a2306b0632', 
+    client_secret = 'd9fb47cfdbab4402ba3727262ff966de'
+)
+spotify = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
 
 GAME_TYPE_YEAR = 'year'
 GAME_TYPE_ARTIST = 'artist'
@@ -79,7 +84,7 @@ def getRandomSongByYear(year):
     month = random.randint(1,12)
     day = random.randint(1,28)
     date = str(year) + '-' + str(month) + '-' + str(day)
-    
+
     # SLOW AF
     # ---------------------------------------------------------------------
     while True:
@@ -90,11 +95,12 @@ def getRandomSongByYear(year):
         
         if len(chart.entries) > 0:
             break
-        
+
     while True:
         song = chart[random.randint(0,15)]
         if song.artist == 'Taylor Swift':
             continue
+
         if len(song.spotifyID) > 0:
             track = spotify.track(song.spotifyID)
             if track['preview_url'] != None:
@@ -159,4 +165,4 @@ def main():
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True)
