@@ -1,21 +1,48 @@
 from bs4 import BeautifulSoup
 import requests
+import json
+import os
+import errno
 
-#url = raw_input("Please enter a URL from billboardtop100of.com: ")
-url = "billboardtop100of.com/2010-2/"
-r = requests.get("http://" + url)
-data = r.text
-soup = BeautifulSoup(data, "html.parser") # use default parser
+OUTPUT_DIR = '/output/'
 
-# Container
-top100 = []
+def main():
+    # for i in xrange(2000, 2016):
+    writeYearToJson(2000)
 
-mainTableRows = soup.findAll('tr')
-for mainTableRow in mainTableRows:
-    row = mainTableRow.findAll('td')
-    rank = row[0].getText()
-    artist = row[1].getText()
-    title = row[2].getText()
-    top100.append((rank, artist, title))
+def writeYearToJson(year):
+    assert type(year) is int
 
-print top100[:10]
+    url = buildURLFromYear(year)
+    r = requests.get("http://" + url)
+    data = r.text
+    soup = BeautifulSoup(data, "html.parser") # use default parser
+
+    top100 = []
+    mainTableRows = soup.findAll('tr')
+    for mainTableRow in mainTableRows:
+        row = mainTableRow.findAll('td')
+        rank = row[0].getText()
+        artist = row[1].getText()
+        title = row[2].getText()
+        entry = {'rank': rank, 'artist': artist, 'title': title}
+        top100.append(entry)
+
+    writeOutput(top100, year)
+
+def buildURLFromYear(year):
+    return "billboardtop100of.com/" + str(year) + "-2/"
+
+def writeOutput(data, year):
+    filename = os.getcwd() + OUTPUT_DIR + str(year) + '.json'
+    if not os.path.exists(os.path.dirname(filename)):
+        try:
+            os.makedirs(os.path.dirname(filename))
+        except OSError as exc: #guard race condition
+            if exc.errno != errno.EEXIST:
+                raise
+    with open(filename, 'w') as f:
+        json.dump(data, f)
+
+if __name__ == "__main__":
+    main()
