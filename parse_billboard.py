@@ -4,11 +4,11 @@ import json
 import os
 import errno
 
-OUTPUT_DIR = '/output/'
+OUTPUT_DIR = '/static/output/'
 
 def main():
-    # for i in xrange(2000, 2016):
-    writeYearToJson(2000)
+    for year in xrange(2000, 2017):
+        writeYearToJson(year)
 
 def writeYearToJson(year):
     assert type(year) is int

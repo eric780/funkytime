@@ -1,13 +1,12 @@
-import billboard
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
 import random
 import re
 import os
+import json
 from flask import Flask
 from flask import render_template, url_for, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_heroku import Heroku
+from SpotifyManager import getRandomSongByYear
 
 CHARTNAME = 'hot-100'
 DEFAULT_YEAR = 2012
@@ -20,12 +19,6 @@ app.config['DEFAULT_YEAR'] = str(DEFAULT_YEAR)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/funky-time-scores'
 heroku = Heroku(app)
 db = SQLAlchemy(app)
-client_credentials_manager = SpotifyClientCredentials(
-    client_id = '63ab4c7c7abe45ba8a1e87a2306b0632', 
-    client_secret = 'd9fb47cfdbab4402ba3727262ff966de'
-)
-spotify = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
-
 GAME_TYPE_YEAR = 'year'
 GAME_TYPE_ARTIST = 'artist'
 GAME_TYPE_SONG = 'song'
@@ -77,39 +70,6 @@ def getHighScores():
     high_scores_serializable = [entry.serialize() for entry in high_scores]
     return jsonify(scores=high_scores_serializable)
 
-"""
-    Takes a year and returns a song object from billboard
-"""
-def getRandomSongByYear(year):
-    month = random.randint(1,12)
-    day = random.randint(1,28)
-    date = str(year) + '-' + str(month) + '-' + str(day)
-
-    # SLOW AF
-    # ---------------------------------------------------------------------
-    while True:
-        month = random.randint(1,12)
-        day = random.randint(1,28)
-        date = str(year) + '-' + str(month) + '-' + str(day)
-        chart = billboard.ChartData(CHARTNAME, date=date)
-        
-        if len(chart.entries) > 0:
-            break
-
-    while True:
-        song = chart[random.randint(0,15)]
-        if song.artist == 'Taylor Swift':
-            continue
-
-        if len(song.spotifyID) > 0:
-            track = spotify.track(song.spotifyID)
-            if track['preview_url'] != None:
-                break
-
-    # ----------------------------------------------------------------------
-
-    return song
-
 @app.route("/play", defaults={'year': 2000})
 @app.route("/play/<year>")
 def getSongByYear(year):
@@ -125,19 +85,19 @@ def getSongAndAnswers():
     gametype = request.form['gametype']
     year = random.randint(MIN_YEAR, MAX_YEAR)
     song = getRandomSongByYear(year)
-    track = spotify.track(song.spotifyID)
-    artist = track['artists'][0]
+    # artist = track['artists'][0]
 
     if gametype == GAME_TYPE_YEAR:
         answers = getAnswerChoicesForYear(year)
     elif gametype == GAME_TYPE_ARTIST:
-        answers = getAnswerChoicesForArtist(artist)
+        # answers = getAnswerChoicesForArtist(artist)
+        answers = []
     elif gametype == GAME_TYPE_SONG:
         answers = []
     else:
         raise InvalidGameTypeException()
 
-    return jsonify(uri = track['preview_url'], answers = answers)
+    return jsonify(uri = song[u'preview_url'], answers = answers)
 
 def getAnswerChoicesForYear(year):
     arr = [year]
@@ -166,3 +126,4 @@ def main():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
+    # getRandomSongByYear(2014)
