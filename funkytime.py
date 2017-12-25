@@ -2,6 +2,7 @@ import random
 import re
 import os
 import json
+import pprint
 from flask import Flask
 from flask import render_template, url_for, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -9,13 +10,11 @@ from flask_heroku import Heroku
 from spotifyutil import getRandomSongByYear
 
 CHARTNAME = 'hot-100'
-DEFAULT_YEAR = 2012
 MIN_YEAR = 2000 #TODO allow user to specify range
 MAX_YEAR = 2016
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['DEFAULT_YEAR'] = str(DEFAULT_YEAR)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/funky-time-scores'
 heroku = Heroku(app)
 db = SQLAlchemy(app)
@@ -91,7 +90,6 @@ def getSongAndAnswers():
     gametype = request.form['gametype']
     year = random.randint(MIN_YEAR, MAX_YEAR)
     song = getRandomSongByYear(year)
-    # artist = track['artists'][0]
 
     if gametype == GAME_TYPE_YEAR:
         answers = getAnswerChoicesForYear(year)
