@@ -54,7 +54,7 @@ def buildSpotifyQuery(songData):
     return songData['title'].replace(" ", "+")
 
 def convertUnicodeDictToString(dict):
-    return {str(k) : str(v) for k,v in dict.items()}
+    return {k.encode() : v.encode() for k,v in dict.items()}
 
 def cleanupSongData(songData):
     # TODO remove "feat." and split artists into an array

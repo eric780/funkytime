@@ -89,12 +89,15 @@ def getSongAndAnswers():
     year = random.randint(MIN_YEAR, MAX_YEAR)
     song = getRandomSongByYear(year)
 
+    while (song['preview_url'] == None):
+        song = getRandomSongByYear(year)
+
     if gametype == GAME_TYPE_YEAR:
         answers = getAnswerChoicesForYear(year)
     else:
         raise InvalidGameTypeException()
 
-    return jsonify(uri = song[u'preview_url'], answers = answers)
+    return jsonify(uri = song['preview_url'], answers = answers)
 
 """
     Given a year, return arr where the first element is the given year
