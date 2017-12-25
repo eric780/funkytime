@@ -6,7 +6,7 @@ from flask import Flask
 from flask import render_template, url_for, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_heroku import Heroku
-from SpotifyManager import getRandomSongByYear
+from spotifyutil import getRandomSongByYear
 
 CHARTNAME = 'hot-100'
 DEFAULT_YEAR = 2012
@@ -70,6 +70,9 @@ def getHighScores():
     high_scores_serializable = [entry.serialize() for entry in high_scores]
     return jsonify(scores=high_scores_serializable)
 
+"""
+    Endpoint for generating a playlist
+"""
 @app.route("/play", defaults={'year': 2000})
 @app.route("/play/<year>")
 def getSongByYear(year):
@@ -78,6 +81,9 @@ def getSongByYear(year):
     track = spotify.track(song.spotifyID)
     return render_template('play.html', song = song, track = track, year = year)
 
+"""
+    Endpoint for getting a song for Game
+"""
 @app.route("/_getSong", methods=['POST'])
 def getSongAndAnswers():
     # Returns json of the URI and a list of answers, first one being correct. JS will shuffle the list.
@@ -99,6 +105,10 @@ def getSongAndAnswers():
 
     return jsonify(uri = song[u'preview_url'], answers = answers)
 
+"""
+    Given a year, return arr where the first element is the given year
+    and the other 3 are unique and not year
+"""
 def getAnswerChoicesForYear(year):
     arr = [year]
     while len(arr) < 4:
