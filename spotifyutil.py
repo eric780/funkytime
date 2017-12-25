@@ -6,7 +6,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from settings import APP_STATIC
 
-RANKING_CUTOFF = 20
+RANKING_CUTOFF = 25 
 
 client_credentials_manager = SpotifyClientCredentials(
     client_id = '63ab4c7c7abe45ba8a1e87a2306b0632', 
@@ -14,7 +14,6 @@ client_credentials_manager = SpotifyClientCredentials(
 )
 token = client_credentials_manager.get_access_token()
 spotify = spotipy.Spotify(auth=token)
-
 
 """
     Takes a year and returns a song object from database
@@ -28,8 +27,10 @@ def getRandomSongByYearFromDatabase(year):
     filename = os.path.join(APP_STATIC, 'output/' + str(year) + '.json')
     yearData = json.load(open(filename))
 
-    randomSong = convertUnicodeDictToString(yearData[random.randint(0, RANKING_CUTOFF)])
-    return randomSong
+    databaseSongData = yearData[random.randint(0, RANKING_CUTOFF)]
+    songData = convertUnicodeDictToString(databaseSongData)
+    cleanedSongData = cleanupSongData(songData)
+    return cleanedSongData
 
 def getSongFromSpotify(songData):
     #TODO call spotify endpoint and select track
@@ -47,17 +48,14 @@ def getSongFromSpotify(songData):
     pprint.pprint(songData)
 
     #TODO check if empty, handle case
-    # return track[u'items'][0]
+    return items[0]
 
 def buildSpotifyQuery(songData):
-    # TODO create string query from song data using songData.title and songData.artist
-    title = songData[u'title'].replace(" ", "+")
-    queryString = title
-    return queryString
+    return songData['title'].replace(" ", "+")
 
 def convertUnicodeDictToString(dict):
     return {str(k) : str(v) for k,v in dict.items()}
 
 def cleanupSongData(songData):
     # TODO remove "feat." and split artists into an array
-    return
+    return songData
