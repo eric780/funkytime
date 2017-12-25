@@ -1,7 +1,5 @@
 var GameType = {
-  SONG: "song",
   YEAR: "year",
-  ARTIST: "artist",
 };
 
 var partyParrots = [
@@ -31,20 +29,6 @@ $(document).ready(function() {
     loadNextSong();
 
     $('#menu').hide();
-  });
-
-  $('#menu-artist-button').click(function() {
-    gametype = GameType.ARTIST;
-
-    $('#game-screen').show();
-    $('#warning-section').hide();
-    loadNextSong();
-
-    $('#menu').hide();
-  });
-
-  $('#menu-song-button').click(function() {
-    // TODO
   });
 
   $('#savebutton').click(function() {

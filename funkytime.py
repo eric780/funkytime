@@ -19,8 +19,6 @@ app.config['DEBUG'] = True
 heroku = Heroku(app)
 db = SQLAlchemy(app)
 GAME_TYPE_YEAR = 'year'
-GAME_TYPE_ARTIST = 'artist'
-GAME_TYPE_SONG = 'song'
 
 MAX_LENGTH_USERNAME = 100
 LEADERBOARD_SIZE = 20
@@ -93,11 +91,6 @@ def getSongAndAnswers():
 
     if gametype == GAME_TYPE_YEAR:
         answers = getAnswerChoicesForYear(year)
-    elif gametype == GAME_TYPE_ARTIST:
-        # answers = getAnswerChoicesForArtist(artist)
-        answers = []
-    elif gametype == GAME_TYPE_SONG:
-        answers = []
     else:
         raise InvalidGameTypeException()
 
