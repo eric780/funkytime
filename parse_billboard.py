@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import json
 import os
+import unidecode
 import errno
 
 OUTPUT_DIR = '/static/output/'
@@ -22,9 +23,9 @@ def writeYearToJson(year):
     mainTableRows = soup.findAll('tr')
     for mainTableRow in mainTableRows:
         row = mainTableRow.findAll('td')
-        rank = row[0].getText()
-        artist = row[1].getText()
-        title = row[2].getText()
+        rank = unidecode.unidecode(row[0].getText())
+        artist = unidecode.unidecode(row[1].getText())
+        title = unidecode.unidecode(row[2].getText())
         entry = {'rank': rank, 'artist': artist, 'title': title}
         top100.append(entry)
 
