@@ -1,6 +1,7 @@
 import json
 import pprint
 import os
+import logging
 import pdb
 import re
 import random
@@ -17,8 +18,11 @@ client_credentials_manager = SpotifyClientCredentials(
 token = client_credentials_manager.get_access_token()
 spotify = spotipy.Spotify(auth=token)
 
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
+
 """
-    Takes a year and returns a song object from database
+    Takes a year and returns a song object from spotify
 """
 def getRandomSongByYear(year):
     randomSong = getRandomSongByYearFromDatabase(year)
@@ -47,6 +51,10 @@ def getSongByYearFromDatabase(year, index):
 def getYearDataFromDatabase(year):
     filename = os.path.join(APP_STATIC, 'output/' + str(year) + '.json')
     yearData = json.load(open(filename))
+    if not yearData:
+        print "BROKENNNNNNNNNNNNNNNNNNNNNNNN"
+        print year
+
     return yearData
 
 def getSongFromSpotify(songData):
@@ -55,16 +63,16 @@ def getSongFromSpotify(songData):
     tracks = results['tracks']
     items = tracks['items']
 
-    print "SEARCH RESULTS: "
+    logging.debug("SEARCH RESULTS")
     for item in items:
         artists = ""
         for artist in item['artists']:
             artists += artist['name']
-        print item['name'] + artists
-    print "QUERY STRING: "
-    print queryString
-    print "SONG DATA: "
-    pprint.pprint(songData)
+        logging.debug(item['name'] + artists)
+    logging.debug("QUERY STRING: ")
+    logging.debug(queryString)
+    logging.debug("SONG DATA: ")
+    logging.debug(pprint.pformat(songData))
 
     # TODO CASES:
     # Beyonce with accent on e
@@ -72,7 +80,7 @@ def getSongFromSpotify(songData):
 
     bestSearchResult = pickBestSearchResult(songData, items)
     if bestSearchResult == None:
-        print 'GOT NONE'
+        logging.debug("GOT NONE FROM SPOTIFY")
     return bestSearchResult
 
 
@@ -105,11 +113,11 @@ def pickBestSearchResult(songData, searchResults):
     for result in searchResults:
         if artists[0] in [item['name'] for item in result['artists']]:
 
-            print "CHOSEN RESULT: "
+            logging.debug("BEST RESULT: ")
             artistString = ""
             for artist in result['artists']:
                 artistString += artist['name']
-            print result['name'] + " by " + artistString
+            logging.debug(result['name'] + " by " + artistString)
 
             return result
     return None
