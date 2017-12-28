@@ -2,3 +2,4 @@
 *.pickle
 .env
 *.pyc
+logs.txt
