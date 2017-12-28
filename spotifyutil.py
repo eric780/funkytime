@@ -23,11 +23,23 @@ spotify = spotipy.Spotify(auth=token)
 def getRandomSongByYear(year):
     randomSong = getRandomSongByYearFromDatabase(year)
     spotifyRandomSong = getSongFromSpotify(randomSong)
+
+    while spotifyRandomSong == None:
+        randomSong = getRandomSongByYearFromDatabase(year)
+        spotifyRandomSong = getSongFromSpotify(randomSong)
+
     return spotifyRandomSong
 
 def getRandomSongByYearFromDatabase(year):
+    return getSongByYearFromDatabase(year, random.randint(0, RANKING_CUTOFF))
+
+"""
+    Helper function that pulls a specific song given a year and index within the year
+    Handles conversion to unicode and cleaning. Use this for all accesses.
+"""
+def getSongByYearFromDatabase(year, index):
     yearData = getYearDataFromDatabase(year)
-    databaseSongData = yearData[random.randint(0, RANKING_CUTOFF)]
+    databaseSongData = yearData[index]
     songData = convertUnicodeDictToString(databaseSongData)
     cleanedSongData = cleanupSongData(songData)
     return cleanedSongData
@@ -54,8 +66,14 @@ def getSongFromSpotify(songData):
     print "SONG DATA: "
     pprint.pprint(songData)
 
-    #TODO check if empty, handle case
-    return pickBestSearchResult(songData, items)
+    # TODO CASES:
+    # Beyonce with accent on e
+    # Songs that are not on first page (ie. Sunshine by Lil' Flip 2004)
+
+    bestSearchResult = pickBestSearchResult(songData, items)
+    if bestSearchResult == None:
+        print 'GOT NONE'
+    return bestSearchResult
 
 
 def buildSpotifyQuery(songData):
@@ -79,22 +97,19 @@ def cleanupSongData(songData):
     return songData
 
 # Picks the best search result from searchResults, given songData
-# Currently that matches based on if the primary artist in songData
-# is an artist listed in searchResults
+# returns None if none found
 def pickBestSearchResult(songData, searchResults):
     # pdb.set_trace()
 
-    bestResult = searchResults[0]
     artists = songData['artist']
     for result in searchResults:
         if artists[0] in [item['name'] for item in result['artists']]:
-            bestResult = result
-            break
 
-    print "CHOSEN RESULT: "
-    artistString = ""
-    for artist in bestResult['artists']:
-        artistString += artist['name']
+            print "CHOSEN RESULT: "
+            artistString = ""
+            for artist in result['artists']:
+                artistString += artist['name']
+            print result['name'] + " by " + artistString
 
-    print bestResult['name'] + " by " + artistString
-    return bestResult
+            return result
+    return None
