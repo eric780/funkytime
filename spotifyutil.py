@@ -1,6 +1,8 @@
 import json
 import pprint
 import os
+import pdb
+import re
 import random
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -24,38 +26,75 @@ def getRandomSongByYear(year):
     return spotifyRandomSong
 
 def getRandomSongByYearFromDatabase(year):
-    filename = os.path.join(APP_STATIC, 'output/' + str(year) + '.json')
-    yearData = json.load(open(filename))
-
+    yearData = getYearDataFromDatabase(year)
     databaseSongData = yearData[random.randint(0, RANKING_CUTOFF)]
     songData = convertUnicodeDictToString(databaseSongData)
     cleanedSongData = cleanupSongData(songData)
     return cleanedSongData
 
+def getYearDataFromDatabase(year):
+    filename = os.path.join(APP_STATIC, 'output/' + str(year) + '.json')
+    yearData = json.load(open(filename))
+    return yearData
+
 def getSongFromSpotify(songData):
-    #TODO call spotify endpoint and select track
     queryString = buildSpotifyQuery(songData)
     results = spotify.search(queryString, type='track')
     tracks = results['tracks']
     items = tracks['items']
 
+    print "SEARCH RESULTS: "
     for item in items:
         artists = ""
         for artist in item['artists']:
             artists += artist['name']
         print item['name'] + artists
+    print "QUERY STRING: "
     print queryString
+    print "SONG DATA: "
     pprint.pprint(songData)
 
     #TODO check if empty, handle case
-    return items[0]
+    return pickBestSearchResult(songData, items)
+
 
 def buildSpotifyQuery(songData):
     return songData['title'].replace(" ", "+")
 
 def convertUnicodeDictToString(dict):
-    return {k.encode() : v.encode() for k,v in dict.items()}
+    return {k.encode('utf-8') : v.encode('utf-8') for k,v in dict.items()}
 
 def cleanupSongData(songData):
-    # TODO remove "feat." and split artists into an array
+    # split string by the following delimiters:
+    # "feat.", ",", "&"
+    artists = re.split('feat.|,|&', songData['artist'])
+    # strip out whitespace
+    for index, artist in enumerate(artists):
+        artists[index] = artist.strip()
+    songData['artist'] = artists
+
+    #strip rank and title as well
+    songData['rank'] = songData['rank'].strip()
+    songData['title'] = songData['title'].strip()
     return songData
+
+# Picks the best search result from searchResults, given songData
+# Currently that matches based on if the primary artist in songData
+# is an artist listed in searchResults
+def pickBestSearchResult(songData, searchResults):
+    # pdb.set_trace()
+
+    bestResult = searchResults[0]
+    artists = songData['artist']
+    for result in searchResults:
+        if artists[0] in [item['name'] for item in result['artists']]:
+            bestResult = result
+            break
+
+    print "CHOSEN RESULT: "
+    artistString = ""
+    for artist in bestResult['artists']:
+        artistString += artist['name']
+
+    print bestResult['name'] + " by " + artistString
+    return bestResult
