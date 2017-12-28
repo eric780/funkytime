@@ -18,7 +18,20 @@ client_credentials_manager = SpotifyClientCredentials(
 token = client_credentials_manager.get_access_token()
 spotify = spotipy.Spotify(auth=token)
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+# Setup Logging
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+fh = logging.FileHandler('logs.txt')
+fh.setLevel(logging.DEBUG)
+fh.setFormatter(formatter)
+logger.addHandler(fh)
+
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 
 """
@@ -80,7 +93,7 @@ def getSongFromSpotify(songData):
 
     bestSearchResult = pickBestSearchResult(songData, items)
     if bestSearchResult == None:
-        logging.debug("GOT NONE FROM SPOTIFY")
+        logging.error("GOT NONE FROM SPOTIFY")
     return bestSearchResult
 
 
@@ -109,9 +122,9 @@ def cleanupSongData(songData):
 def pickBestSearchResult(songData, searchResults):
     # pdb.set_trace()
 
-    artists = songData['artist']
     for result in searchResults:
-        if artists[0] in [item['name'] for item in result['artists']]:
+        # if artists[0] in [item['name'] for item in result['artists']]:
+        if isGoodMatch(songData, result):
 
             logging.debug("BEST RESULT: ")
             artistString = ""
@@ -121,3 +134,11 @@ def pickBestSearchResult(songData, searchResults):
 
             return result
     return None
+
+def isGoodMatch(songData, searchResult):
+    firstArtist = songData['artist'][0]
+    resultArtists = searchResult['artists']
+    for artist in resultArtists:
+        if firstArtist.lower() == artist['name'].lower():
+            return True
+    return False
