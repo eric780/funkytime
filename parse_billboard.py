@@ -9,9 +9,8 @@ import errno
 OUTPUT_DIR = '/static/output/'
 
 def main():
-    # for year in xrange(2000, 2017):
-    #     writeYearToJson(year)
-    writeYearToJson(2013)
+    for year in xrange(2000, 2017):
+        writeYearToJson(year)
 
 def writeYearToJson(year):
     assert type(year) is int
@@ -27,15 +26,14 @@ def writeYearToJson(year):
         top100string = soup.findAll('p')[2].getText()
         top100lines = top100string.split('\n')
         top100 = list(map(processIndividualLine, top100lines))
-        print top100
 
     else:
         mainTableRows = soup.findAll('tr')
         for mainTableRow in mainTableRows:
             row = mainTableRow.findAll('td')
-            rank = unidecode.unidecode(row[0].getText())
-            artist = unidecode.unidecode(row[1].getText())
-            title = unidecode.unidecode(row[2].getText())
+            rank = cleanup(unidecode.unidecode(row[0].getText()))
+            artist = cleanup(unidecode.unidecode(row[1].getText()))
+            title = cleanup(unidecode.unidecode(row[2].getText()))
             entry = {'rank': rank, 'artist': artist, 'title': title}
             top100.append(entry)
 
@@ -46,11 +44,14 @@ def processIndividualLine(line):
     line = unidecode.unidecode(line)
     # split by period and dash
     info = re.split('\.|-', line)
-    rank = info[0].strip()
-    artist = info[1].strip()
-    title = info[2].strip()
+    rank = cleanup(info[0])
+    artist = cleanup(info[1].strip())
+    title = cleanup(info[2].strip())
     return {'rank': rank, 'artist': artist,'title': title}
 
+def cleanup(entry):
+    # get rid of dumb shit
+    return entry.replace("\nLYRICS", "").strip()
 
 def buildURLFromYear(year):
     return "billboardtop100of.com/" + str(year) + "-2/"
