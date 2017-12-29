@@ -2,7 +2,6 @@ import random
 import re
 import os
 import json
-import pprint
 from flask import Flask
 from flask import render_template, url_for, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -12,6 +11,7 @@ from spotifyutil import getRandomSongByYear
 CHARTNAME = 'hot-100'
 MIN_YEAR = 2000 #TODO allow user to specify range
 MAX_YEAR = 2016
+NUM_ANSWER_CHOICES = 3
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -105,7 +105,7 @@ def getSongAndAnswers():
 """
 def getAnswerChoicesForYear(year):
     arr = [year]
-    while len(arr) < 4:
+    while len(arr) < NUM_ANSWER_CHOICES:
         rand = random.randint(MIN_YEAR, MAX_YEAR)
         if rand in arr:
             continue
