@@ -6,6 +6,7 @@ import pdb
 import re
 import random
 import spotipy
+from fuzzywuzzy import fuzz
 from spotipy.oauth2 import SpotifyClientCredentials
 from settings import APP_STATIC
 
@@ -136,9 +137,21 @@ def pickBestSearchResult(songData, searchResults):
     return None
 
 def isGoodMatch(songData, searchResult):
-    firstArtist = songData['artist'][0]
-    resultArtists = searchResult['artists']
-    for artist in resultArtists:
-        if firstArtist.lower() == artist['name'].lower():
-            return True
-    return False
+    # simple check:
+    # title are substrings of each other
+    # and first artists are equal
+    title1 = songData['title'].lower()
+    title2 = searchResult['name'].lower()
+    artist1 = songData['artist'][0].lower()
+    artist2 = searchResult['artists'][0]['name'].lower()
+
+    if (title1 in title2 or title2 in title1) and (artist1 in artist2 or artist2 in artist1):
+        return True
+    else:
+        # fuzzy check fallback
+        title_score = fuzz.ratio(songData['title'], searchResult['name'])
+        artist_score = fuzz.ratio(
+            ' '.join(songData['artist']), 
+            ' '.join([artist['name'] for artist in searchResult['artists']]))
+
+        return title_score + artist_score > 180
