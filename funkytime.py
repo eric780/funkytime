@@ -118,10 +118,6 @@ def getAnswerChoicesForArtist(artist):
 
     return [a['name'] for a in related_artists]
 
-@app.route("/game")
-def game():
-    return render_template('game.html')
-
 @app.route("/")
 @app.route("/index")
 def main():
