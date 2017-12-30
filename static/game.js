@@ -1,3 +1,6 @@
+/*
+  Enum for game type
+*/
 var GameType = {
   YEAR: "year",
 };
@@ -10,6 +13,11 @@ var partyParrots = [
   "http://cultofthepartyparrot.com/parrots/parrotmustache.gif",
   "http://cultofthepartyparrot.com/parrots/partyparrot.gif",
 ];
+
+function getPartyParrot() {
+  return partyParrots[Math.floor(Math.random() * partyParrots.length)];
+}
+
 
 $(document).ready(function() {
   var score = 0;
@@ -128,7 +136,7 @@ $(document).ready(function() {
     }
 
     // swap first element
-    var randomindex = Math.floor(Math.random() * 4);
+    var randomindex = Math.floor(Math.random() * answers.length);
     var temp = arr[randomindex]
     arr[randomindex] = arr[0];
     arr[0] = temp;
@@ -160,10 +168,6 @@ $(document).ready(function() {
       best_score = score;
       $('#best-score').text(best_score);
     }
-  }
-
-  function getPartyParrot() {
-    return partyParrots[Math.floor(Math.random() * partyParrots.length)];
   }
 
 });
