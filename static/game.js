@@ -18,7 +18,6 @@ function getPartyParrot() {
   return partyParrots[Math.floor(Math.random() * partyParrots.length)];
 }
 
-
 $(document).ready(function() {
   var score = 0;
   var best_score = 0;
